@@ -1,8 +1,8 @@
 #!/usr/bin/nodejs
 
-var http = require('https'); // Variable de type HTTP.
+var _      = require('underscore');
+var http   = require('https'); // Variable de type HTTP.
 var xmlrpc = require('xmlrpc');
-var _ = require('underscore')
 
 ///////////////////////////////////////
 
@@ -71,23 +71,23 @@ var hosts = {};
 //
 Xapi.open('andromeda.vates.fr', 'root', 'dev2013stage', function (xapi) {
 
-		xapi.call_('host.get_all_records', function (hosts) {
-			_.each(hosts, function (host, key) {
+		xapi.call_('host.get_all_records', function (records) {
+			_.each(records, function (host, key) {
 				if (hosts[key])
 				{
 					_.each(hosts[key], function (value, name){
 						if (host[name] !== value)
 						{
 							console.log('changement : ' + value + ' en : ' + hosts[name]);
-							hosts[key] = host[name];
 						}
 					});
 				}
-				else
-				{
-					hosts[key] = host;
-				}
+				hosts[key] = host;
 			});
-		});
 
+			console.log(hosts);
+
+
+			// @todo Use event handling to keep “hosts” up to date.
+		});
 });
