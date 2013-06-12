@@ -68,26 +68,42 @@ Xapi.open = function(host, username, password, callback) {
 
 var hosts = {};
 
-//
-Xapi.open('andromeda.vates.fr', 'root', 'dev2013stage', function (xapi) {
+//'andromeda.vates.fr', 'root', 'dev2013stage'
+function host_config(pool, username, password) {
+
+	//
+	Xapi.open(pool, username, password, function (xapi) {
 
 		xapi.call_('host.get_all_records', function (records) {
-			_.each(records, function (host, key) {
+			_.extend(hosts, records);
+		});
+
+		var wait_and_log_event = function() {
+			//
+			xapi.call_('event.next', function (event) {
+				console.log(event);
+				_.each(event, function (host, key) {
+
 				if (hosts[key])
 				{
 					_.each(hosts[key], function (value, name){
+						console.log(host[name]);
 						if (host[name] !== value)
 						{
 							console.log('changement : ' + value + ' en : ' + hosts[name]);
 						}
 					});
 				}
-				hosts[key] = host;
-			});
 
-			console.log(hosts);
-
+				});
+			wait_and_log_event();
+		});
+	//
+		}
+	xapi.call_('event.register', ['host'], wait_and_log_event);
 
 			// @todo Use event handling to keep “hosts” up to date.
-		});
 });
+}
+
+host_config('andromeda.vates.fr','root','dev2013stage');
